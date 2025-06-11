@@ -46,10 +46,10 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-orange-600 to-red-600 text-white">
+      <section className="relative bg-gradient-to-r from-orange-600 to-red-600 text-white ">
         <div className="absolute inset-0 bg-black opacity-20"></div>
         <div 
-          className="relative bg-cover bg-center bg-no-repeat min-h-[500px] flex items-center"
+          className="relative bg-cover bg-center bg-no-repeat min-h-[650px] flex items-center"
           style={{
             backgroundImage: 'url("https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1920&q=80")',
           }}
@@ -70,7 +70,7 @@ const Index = () => {
                   </Button>
                 </Link>
                 <Link to="/book">
-                  <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-orange-600">
+                  <Button size="lg" variant="outline" className="text-white border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white">
                     Book Table
                   </Button>
                 </Link>
@@ -81,7 +81,7 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 ">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
