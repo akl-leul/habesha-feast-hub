@@ -6,10 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Navigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 const Auth = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@addiskitchen.com');
+  const [password, setPassword] = useState('password');
   const [loading, setLoading] = useState(false);
   const { user, signIn } = useAuth();
 
@@ -22,7 +23,20 @@ const Auth = () => {
     setLoading(true);
     
     try {
-      await signIn(email, password);
+      const { error } = await signIn(email, password);
+      if (!error) {
+        // Redirect will happen automatically via the auth context
+        setTimeout(() => {
+          window.location.href = '/admin';
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        title: "Login failed",
+        description: "Please check your credentials and try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -44,7 +58,7 @@ const Auth = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@restaurant.com"
+                placeholder="admin@addiskitchen.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -55,6 +69,7 @@ const Auth = () => {
               <Input
                 id="password"
                 type="password"
+                placeholder="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -64,6 +79,14 @@ const Auth = () => {
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
+          
+          <div className="mt-4 p-4 bg-blue-50 rounded-md">
+            <p className="text-sm text-blue-700">
+              <strong>Default Admin Credentials:</strong><br />
+              Email: admin@addiskitchen.com<br />
+              Password: password
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>
