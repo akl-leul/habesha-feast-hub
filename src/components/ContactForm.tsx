@@ -160,7 +160,7 @@ const ContactForm = () => {
             </div>
             <div className="flex items-center space-x-2">
               <Mail className="h-4 w-4 text-orange-600" />
-              <span className="text-sm">info@addiskitchen.com</span>
+              <span className="text-sm">abateisking@gmail.com</span>
             </div>
           </div>
         </div>

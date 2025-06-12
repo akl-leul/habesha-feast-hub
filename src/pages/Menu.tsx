@@ -26,6 +26,7 @@ const Menu = () => {
   const [filteredItems, setFilteredItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const { addItem } = useCart();
 
   const categories = ['all', 'appetizers', 'mains', 'desserts', 'beverages'];
@@ -57,11 +58,12 @@ const Menu = () => {
     }
   };
 
-  const handleSearch = (query: string) => {
+  const applyFilters = (query: string, category: string) => {
     let filtered = menuItems;
 
+    // Apply search filter
     if (query) {
-      filtered = menuItems.filter(item =>
+      filtered = filtered.filter(item =>
         item.name.toLowerCase().includes(query.toLowerCase()) ||
         item.description?.toLowerCase().includes(query.toLowerCase()) ||
         item.category.toLowerCase().includes(query.toLowerCase()) ||
@@ -69,22 +71,22 @@ const Menu = () => {
       );
     }
 
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(item => item.category.toLowerCase() === selectedCategory);
+    // Apply category filter
+    if (category !== 'all') {
+      filtered = filtered.filter(item => item.category.toLowerCase() === category);
     }
 
     setFilteredItems(filtered);
   };
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    applyFilters(query, selectedCategory);
+  };
+
   const handleCategoryFilter = (category: string) => {
     setSelectedCategory(category);
-    let filtered = menuItems;
-
-    if (category !== 'all') {
-      filtered = menuItems.filter(item => item.category.toLowerCase() === category);
-    }
-
-    setFilteredItems(filtered);
+    applyFilters(searchQuery, category);
   };
 
   const handleAddToCart = (item: MenuItem) => {
@@ -168,7 +170,7 @@ const Menu = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-2xl font-bold text-orange-600">
-                      ${item.price.toFixed(2)}
+                      {(item.price * 55).toFixed(0)} ETB
                     </div>
                     {item.preparation_time && (
                       <div className="flex items-center text-sm text-gray-500 mt-1">

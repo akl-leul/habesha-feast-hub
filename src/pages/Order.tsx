@@ -156,7 +156,7 @@ const Order = () => {
                       )}
                       <div className="flex-1">
                         <h3 className="font-semibold">{item.name}</h3>
-                        <p className="text-orange-600 font-bold">${item.price.toFixed(2)}</p>
+                        <p className="text-orange-600 font-bold">{(item.price * 55).toFixed(0)} ETB</p>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Button
@@ -187,7 +187,7 @@ const Order = () => {
                   ))}
                   <div className="border-t pt-4">
                     <div className="flex justify-between items-center text-xl font-bold">
-                      <span>Total: ${totalPrice.toFixed(2)}</span>
+                      <span>Total: {(totalPrice * 55).toFixed(0)} ETB</span>
                     </div>
                   </div>
                 </div>
@@ -274,7 +274,7 @@ const Order = () => {
                 disabled={loading || items.length === 0}
                 className="w-full bg-orange-600 hover:bg-orange-700"
               >
-                {loading ? 'Placing Order...' : `Place Order - $${totalPrice.toFixed(2)}`}
+                {loading ? 'Placing Order...' : `Place Order - ${(totalPrice * 55).toFixed(0)} ETB`}
               </Button>
             </CardContent>
           </Card>
