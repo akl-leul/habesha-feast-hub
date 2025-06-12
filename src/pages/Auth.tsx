@@ -9,7 +9,7 @@ import { Navigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 
 const Auth = () => {
-  const [email, setEmail] = useState('admin@addiskitchen.com');
+  const [email, setEmail] = useState('abateisking@gmail.com');
   const [password, setPassword] = useState('password');
   const [loading, setLoading] = useState(false);
   const { user, signIn } = useAuth();
@@ -58,7 +58,7 @@ const Auth = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@addiskitchen.com"
+                placeholder="abateisking@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -83,7 +83,7 @@ const Auth = () => {
           <div className="mt-4 p-4 bg-blue-50 rounded-md">
             <p className="text-sm text-blue-700">
               <strong>Default Admin Credentials:</strong><br />
-              Email: admin@addiskitchen.com<br />
+              Email: abateisking@gmail.com<br />
               Password: password
             </p>
           </div>

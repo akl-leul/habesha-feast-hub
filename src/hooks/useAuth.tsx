@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (session?.user) {
           // Check if user is admin by email
-          if (session.user.email === 'admin@addiskitchen.com') {
+          if (session.user.email === 'abateisking@gmail.com') {
             setIsAdmin(true);
             console.log('Admin user detected');
           } else {
@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await supabase.auth.signOut();
       
       // For admin user, try to sign up first to ensure the user exists
-      if (email === 'admin@addiskitchen.com') {
+      if (email === 'abateisking@gmail.com') {
         console.log('Admin email detected, ensuring user exists');
         
         // Try to sign up (this will fail if user already exists, which is fine)
@@ -97,7 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('Sign in error:', error);
         
         // If it's an email not confirmed error for admin, let's try to confirm it
-        if (error.message.includes('Email not confirmed') && email === 'admin@addiskitchen.com') {
+        if (error.message.includes('Email not confirmed') && email === 'abateisking@gmail.com') {
           console.log('Admin email not confirmed, this is expected for development');
           toast({
             title: "Admin Setup",
