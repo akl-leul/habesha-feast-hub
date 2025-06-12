@@ -36,6 +36,36 @@ export type Database = {
         }
         Relationships: []
       }
+      app_settings: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          setting_key: string
+          setting_value: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          setting_key: string
+          setting_value: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           booking_date: string
@@ -167,6 +197,48 @@ export type Database = {
           name?: string
           read?: boolean
           subject?: string
+        }
+        Relationships: []
+      }
+      inventory: {
+        Row: {
+          category: string
+          cost_per_unit: number
+          created_at: string | null
+          current_stock: number
+          id: string
+          item_name: string
+          last_restocked: string | null
+          minimum_stock: number
+          supplier: string | null
+          unit: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          cost_per_unit?: number
+          created_at?: string | null
+          current_stock?: number
+          id?: string
+          item_name: string
+          last_restocked?: string | null
+          minimum_stock?: number
+          supplier?: string | null
+          unit?: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          cost_per_unit?: number
+          created_at?: string | null
+          current_stock?: number
+          id?: string
+          item_name?: string
+          last_restocked?: string | null
+          minimum_stock?: number
+          supplier?: string | null
+          unit?: string
+          updated_at?: string | null
         }
         Relationships: []
       }

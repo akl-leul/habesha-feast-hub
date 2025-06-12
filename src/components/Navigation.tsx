@@ -1,13 +1,16 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, User, LogOut } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Menu, X, User, LogOut, ShoppingCart } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
 import { Link, useLocation } from 'react-router-dom';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAdmin, signOut } = useAuth();
+  const { totalItems } = useCart();
   const location = useLocation();
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -49,6 +52,19 @@ const Navigation = () => {
                 {item.name}
               </Link>
             ))}
+            
+            {/* Cart Icon */}
+            <Link to="/order" className="relative">
+              <Button variant="outline" size="sm">
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Cart
+                {totalItems > 0 && (
+                  <Badge className="ml-2 bg-orange-600 text-white">
+                    {totalItems}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
             
             {user ? (
               <div className="flex items-center space-x-4">
@@ -94,6 +110,13 @@ const Navigation = () => {
                   {item.name}
                 </Link>
               ))}
+              
+              <Link to="/order" onClick={() => setIsOpen(false)} className="block px-3 py-2">
+                <Button variant="outline" size="sm" className="w-full">
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Cart ({totalItems})
+                </Button>
+              </Link>
               
               {user ? (
                 <div className="space-y-2 px-3 py-2">
