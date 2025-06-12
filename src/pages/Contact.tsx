@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
+import ContactForm from '@/components/ContactForm';
 
 const Contact = () => {
   return (
@@ -12,7 +13,7 @@ const Contact = () => {
           <p className="text-xl text-gray-600">Get in touch with Addis Kitchen</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
           <Card>
             <CardHeader>
               <CardTitle>Visit Us</CardTitle>
@@ -61,20 +62,7 @@ const Contact = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Send us a Message</CardTitle>
-              <CardDescription>
-                Contact form coming soon. Please call or email us directly.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">
-                Our contact form is currently under development. 
-                Please call us at +1 (555) 123-4567 or email us at info@addiskitchen.com
-              </p>
-            </CardContent>
-          </Card>
+          <ContactForm />
         </div>
       </div>
     </div>

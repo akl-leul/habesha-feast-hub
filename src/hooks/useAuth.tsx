@@ -25,6 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -35,6 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             .select('email')
             .eq('email', session.user.email)
             .single();
+          console.log('Admin check result:', data);
           setIsAdmin(!!data);
         } else {
           setIsAdmin(false);
@@ -46,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -56,12 +59,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log('Attempting sign in with:', email);
+      
+      // First try to sign up the admin user if it doesn't exist in auth.users
+      if (email === 'admin@addiskitchen.com') {
+        console.log('Admin user detected, ensuring auth.users entry exists');
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`
+          }
+        });
+        
+        if (signUpError && !signUpError.message.includes('already registered')) {
+          console.error('Sign up error:', signUpError);
+        }
+      }
+      
+      // Now try to sign in
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
       if (error) {
+        console.error('Sign in error:', error);
         toast({
           title: "Sign in failed",
           description: error.message,
@@ -70,8 +93,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error };
       }
       
+      toast({
+        title: "Signed in successfully",
+        description: "Welcome back!",
+      });
+      
       return { error: null };
     } catch (error) {
+      console.error('Sign in catch error:', error);
       return { error };
     }
   };
