@@ -37,19 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setIsAdmin(true);
             console.log('Admin user detected');
           } else {
-            // Check admin_users table for other admin emails
-            try {
-              const { data } = await supabase
-                .from('admin_users')
-                .select('email')
-                .eq('email', session.user.email)
-                .single();
-              console.log('Admin check result:', data);
-              setIsAdmin(!!data);
-            } catch (error) {
-              console.log('Admin check failed:', error);
-              setIsAdmin(false);
-            }
+            setIsAdmin(false);
           }
         } else {
           setIsAdmin(false);
@@ -62,7 +50,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('Initial session check:', session?.user?.email);
-      // The onAuthStateChange will handle the session setup
       if (!session) {
         setLoading(false);
       }
@@ -76,102 +63,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Attempting sign in with:', email);
       setLoading(true);
       
-      // Clean up any existing auth state first
-      await supabase.auth.signOut();
-      
-      // For admin user, ensure they exist in Supabase Auth
+      // For admin user, try to sign in or create account
       if (email === 'abateisking@gmail.com') {
-        console.log('Admin email detected, ensuring user exists');
+        console.log('Admin email detected');
         
-        // First try to sign in
+        // Try to sign in first
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         
-        // If sign in fails with invalid credentials, try to create the user
         if (signInError && signInError.message.includes('Invalid login credentials')) {
           console.log('User does not exist, creating admin user...');
           
+          // Try to create the user
           const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
             email,
             password,
             options: {
-              emailRedirectTo: `${window.location.origin}/`,
-              data: {
-                role: 'admin'
-              }
+              emailRedirectTo: `${window.location.origin}/admin`
             }
           });
           
           if (signUpError) {
             console.error('Sign up error:', signUpError);
-            
-            // If user already exists but email not confirmed, handle it
-            if (signUpError.message.includes('User already registered')) {
-              console.log('User exists but may need confirmation, trying sign in again...');
-              
-              // Try signing in again
-              const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-              });
-              
-              if (retryError) {
-                toast({
-                  title: "Sign in failed",
-                  description: "Admin account may need email confirmation. Please check your email or contact support.",
-                  variant: "destructive",
-                });
-                return { error: retryError };
-              }
-              
-              if (retryData.user) {
-                console.log('Retry sign in successful for:', retryData.user.email);
-                toast({
-                  title: "Signed in successfully",
-                  description: "Welcome back!",
-                });
-                return { error: null };
-              }
-            } else {
-              toast({
-                title: "Account creation failed",
-                description: signUpError.message,
-                variant: "destructive",
-              });
-              return { error: signUpError };
-            }
+            toast({
+              title: "Account creation failed",
+              description: signUpError.message,
+              variant: "destructive",
+            });
+            return { error: signUpError };
           }
           
           if (signUpData.user) {
-            console.log('Admin user created successfully:', signUpData.user.email);
+            console.log('Admin user created successfully');
+            toast({
+              title: "Admin account created",
+              description: "You can now sign in with your credentials.",
+            });
             
-            // If user was created but needs confirmation, let them know
-            if (!signUpData.session) {
+            // Try to sign in immediately after creation
+            const { data: newSignInData, error: newSignInError } = await supabase.auth.signInWithPassword({
+              email,
+              password,
+            });
+            
+            if (newSignInError) {
               toast({
-                title: "Account created",
-                description: "Please check your email to confirm your account, or sign in if already confirmed.",
+                title: "Please try signing in again",
+                description: "Account created successfully. Please sign in now.",
               });
-              
-              // Try to sign in immediately in case email confirmation is disabled
-              const { data: immediateSignIn, error: immediateError } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-              });
-              
-              if (!immediateError && immediateSignIn.user) {
-                console.log('Immediate sign in successful');
-                toast({
-                  title: "Signed in successfully",
-                  description: "Welcome!",
-                });
-                return { error: null };
-              }
-            } else {
+              return { error: newSignInError };
+            }
+            
+            if (newSignInData.user) {
               toast({
-                title: "Account created and signed in",
-                description: "Welcome!",
+                title: "Signed in successfully",
+                description: "Welcome to the admin dashboard!",
               });
               return { error: null };
             }
@@ -185,7 +133,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
           return { error: signInError };
         } else if (signInData.user) {
-          console.log('Sign in successful for:', signInData.user.email);
+          console.log('Sign in successful');
           toast({
             title: "Signed in successfully",
             description: "Welcome back!",
@@ -193,7 +141,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return { error: null };
         }
       } else {
-        // For non-admin users, just try to sign in normally
+        // For non-admin users
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -210,10 +158,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         
         if (data.user) {
-          console.log('Sign in successful for:', data.user.email);
           toast({
             title: "Signed in successfully",
-            description: "Welcome back!",
+            description: "Welcome!",
           });
         }
         

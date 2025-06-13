@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Navigate } from 'react-router-dom';
-import { toast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Auth = () => {
@@ -28,15 +27,9 @@ const Auth = () => {
       const { error } = await signIn(email, password);
       if (!error) {
         console.log('Login successful, redirecting...');
-        // Redirect will happen automatically via Navigate component above
       }
     } catch (error) {
       console.error('Login error:', error);
-      toast({
-        title: "Login failed",
-        description: "Please check your credentials and try again.",
-        variant: "destructive",
-      });
     } finally {
       setLoading(false);
     }
@@ -90,8 +83,7 @@ const Auth = () => {
           
           <Alert className="mt-4">
             <AlertDescription>
-              If this is your first time logging in, the system will automatically create your admin account. 
-              You may need to check your email for confirmation or try signing in again if you see any confirmation messages.
+              If this is your first time logging in, the system will automatically create your admin account.
             </AlertDescription>
           </Alert>
         </CardContent>
