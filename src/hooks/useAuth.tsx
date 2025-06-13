@@ -76,56 +76,148 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Attempting sign in with:', email);
       setLoading(true);
       
-      // For admin user, try to sign up first to ensure the user exists
+      // Clean up any existing auth state first
+      await supabase.auth.signOut();
+      
+      // For admin user, ensure they exist in Supabase Auth
       if (email === 'abateisking@gmail.com') {
         console.log('Admin email detected, ensuring user exists');
         
-        // Try to sign up (this will fail if user already exists, which is fine)
-        await supabase.auth.signUp({
+        // First try to sign in
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`
-          }
         });
         
-        // Wait a moment for the user to be created
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-      
-      // Now try to sign in
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
-      if (error) {
-        console.error('Sign in error:', error);
-        
-        // If it's an email not confirmed error for admin, let's try to confirm it
-        if (error.message.includes('Email not confirmed') && email === 'abateisking@gmail.com') {
-          console.log('Admin email not confirmed, this is expected for development');
+        // If sign in fails with invalid credentials, try to create the user
+        if (signInError && signInError.message.includes('Invalid login credentials')) {
+          console.log('User does not exist, creating admin user...');
+          
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/`,
+              data: {
+                role: 'admin'
+              }
+            }
+          });
+          
+          if (signUpError) {
+            console.error('Sign up error:', signUpError);
+            
+            // If user already exists but email not confirmed, handle it
+            if (signUpError.message.includes('User already registered')) {
+              console.log('User exists but may need confirmation, trying sign in again...');
+              
+              // Try signing in again
+              const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+              });
+              
+              if (retryError) {
+                toast({
+                  title: "Sign in failed",
+                  description: "Admin account may need email confirmation. Please check your email or contact support.",
+                  variant: "destructive",
+                });
+                return { error: retryError };
+              }
+              
+              if (retryData.user) {
+                console.log('Retry sign in successful for:', retryData.user.email);
+                toast({
+                  title: "Signed in successfully",
+                  description: "Welcome back!",
+                });
+                return { error: null };
+              }
+            } else {
+              toast({
+                title: "Account creation failed",
+                description: signUpError.message,
+                variant: "destructive",
+              });
+              return { error: signUpError };
+            }
+          }
+          
+          if (signUpData.user) {
+            console.log('Admin user created successfully:', signUpData.user.email);
+            
+            // If user was created but needs confirmation, let them know
+            if (!signUpData.session) {
+              toast({
+                title: "Account created",
+                description: "Please check your email to confirm your account, or sign in if already confirmed.",
+              });
+              
+              // Try to sign in immediately in case email confirmation is disabled
+              const { data: immediateSignIn, error: immediateError } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+              });
+              
+              if (!immediateError && immediateSignIn.user) {
+                console.log('Immediate sign in successful');
+                toast({
+                  title: "Signed in successfully",
+                  description: "Welcome!",
+                });
+                return { error: null };
+              }
+            } else {
+              toast({
+                title: "Account created and signed in",
+                description: "Welcome!",
+              });
+              return { error: null };
+            }
+          }
+        } else if (signInError) {
+          console.error('Sign in error:', signInError);
           toast({
-            title: "Admin Setup",
-            description: "Admin account needs email confirmation. Please check Supabase auth settings or contact support.",
+            title: "Sign in failed",
+            description: signInError.message,
             variant: "destructive",
           });
-        } else {
+          return { error: signInError };
+        } else if (signInData.user) {
+          console.log('Sign in successful for:', signInData.user.email);
+          toast({
+            title: "Signed in successfully",
+            description: "Welcome back!",
+          });
+          return { error: null };
+        }
+      } else {
+        // For non-admin users, just try to sign in normally
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        
+        if (error) {
+          console.error('Sign in error:', error);
           toast({
             title: "Sign in failed",
             description: error.message,
             variant: "destructive",
           });
+          return { error };
         }
-        return { error };
-      }
-      
-      if (data.user) {
-        console.log('Sign in successful for:', data.user.email);
-        toast({
-          title: "Signed in successfully",
-          description: "Welcome back!",
-        });
+        
+        if (data.user) {
+          console.log('Sign in successful for:', data.user.email);
+          toast({
+            title: "Signed in successfully",
+            description: "Welcome back!",
+          });
+        }
+        
+        return { error: null };
       }
       
       return { error: null };

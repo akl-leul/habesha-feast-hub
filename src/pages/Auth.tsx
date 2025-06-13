@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Navigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Auth = () => {
   const [email, setEmail] = useState('abateisking@gmail.com');
@@ -86,6 +87,13 @@ const Auth = () => {
               Password: password
             </p>
           </div>
+          
+          <Alert className="mt-4">
+            <AlertDescription>
+              If this is your first time logging in, the system will automatically create your admin account. 
+              You may need to check your email for confirmation or try signing in again if you see any confirmation messages.
+            </AlertDescription>
+          </Alert>
         </CardContent>
       </Card>
     </div>
