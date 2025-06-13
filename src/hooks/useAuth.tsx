@@ -22,6 +22,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    console.log('Setting up auth state listener...');
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -36,13 +38,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.log('Admin user detected');
           } else {
             // Check admin_users table for other admin emails
-            const { data } = await supabase
-              .from('admin_users')
-              .select('email')
-              .eq('email', session.user.email)
-              .single();
-            console.log('Admin check result:', data);
-            setIsAdmin(!!data);
+            try {
+              const { data } = await supabase
+                .from('admin_users')
+                .select('email')
+                .eq('email', session.user.email)
+                .single();
+              console.log('Admin check result:', data);
+              setIsAdmin(!!data);
+            } catch (error) {
+              console.log('Admin check failed:', error);
+              setIsAdmin(false);
+            }
           }
         } else {
           setIsAdmin(false);
@@ -55,9 +62,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('Initial session check:', session?.user?.email);
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+      // The onAuthStateChange will handle the session setup
+      if (!session) {
+        setLoading(false);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -66,9 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       console.log('Attempting sign in with:', email);
-      
-      // Clear any existing session first
-      await supabase.auth.signOut();
+      setLoading(true);
       
       // For admin user, try to sign up first to ensure the user exists
       if (email === 'abateisking@gmail.com') {
@@ -131,11 +137,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         variant: "destructive",
       });
       return { error };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signOut = async () => {
     try {
+      console.log('Signing out...');
       await supabase.auth.signOut();
       setIsAdmin(false);
       toast({

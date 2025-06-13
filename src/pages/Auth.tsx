@@ -15,7 +15,7 @@ const Auth = () => {
   const { user, signIn } = useAuth();
 
   if (user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/admin" replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,12 +23,11 @@ const Auth = () => {
     setLoading(true);
     
     try {
+      console.log('Submitting login form...');
       const { error } = await signIn(email, password);
       if (!error) {
-        // Redirect will happen automatically via the auth context
-        setTimeout(() => {
-          window.location.href = '/admin';
-        }, 1000);
+        console.log('Login successful, redirecting...');
+        // Redirect will happen automatically via Navigate component above
       }
     } catch (error) {
       console.error('Login error:', error);
